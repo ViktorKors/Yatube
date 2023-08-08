@@ -51,7 +51,10 @@ class CommentViewSet(AuthorOrReadOnlyMixin, viewsets.ModelViewSet):
 
 
 class FollowersViewSet(viewsets.ModelViewSet):
-    """Вьюсет для показа всех подписок пользователя, который отправил запрос, и для оформления подписок."""
+    """
+    Вьюсет для показа всех подписок пользователя, который отправил запрос,
+    и для оформления подписок.
+    """
 
     serializer_class = FollowSerializers
     filter_backends = (filters.SearchFilter,)
