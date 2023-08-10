@@ -1,25 +1,17 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from posts.models import Group, Post
 
 from .permissions import IsCreatorOrReadOnly
-from .serializers import (
-    CommentSerializers,
-    FollowSerializers,
-    GroupSerializers,
-    PostSerializers,
-)
+from .serializers import (CommentSerializers, FollowSerializers,
+                          GroupSerializers, PostSerializers)
 
 
 class AuthorOrReadOnlyMixin:
-    permission_classes = (
-        IsAuthenticatedOrReadOnly,
-        IsCreatorOrReadOnly,
-    )
+    permission_classes = (IsCreatorOrReadOnly,)
 
 
 class PostViewSet(AuthorOrReadOnlyMixin, viewsets.ModelViewSet):
@@ -50,7 +42,9 @@ class CommentViewSet(AuthorOrReadOnlyMixin, viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 
-class FollowersViewSet(viewsets.ModelViewSet):
+class FollowersViewSet(
+    viewsets.ModelViewSet, mixins.CreateModelMixin, mixins.ListModelMixin
+):
     """
     Вьюсет для показа всех подписок пользователя, который отправил запрос,
     и для оформления подписок.
@@ -59,10 +53,6 @@ class FollowersViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializers
     filter_backends = (filters.SearchFilter,)
     search_fields = ("following__username",)
-    http_method_names = (
-        "get",
-        "post",
-    )
 
     def get_queryset(self):
         """Функция для получения подписок пользователя, совершившего запрос."""
@@ -74,9 +64,8 @@ class FollowersViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+class GroupViewSet(AuthorOrReadOnlyMixin, viewsets.ReadOnlyModelViewSet):
     """Вьюсет для показа всех доступных групп."""
 
     serializer_class = GroupSerializers
     queryset = Group.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
