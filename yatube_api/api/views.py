@@ -6,8 +6,12 @@ from rest_framework.pagination import LimitOffsetPagination
 from posts.models import Group, Post
 
 from .permissions import IsCreatorOrReadOnly
-from .serializers import (CommentSerializers, FollowSerializers,
-                          GroupSerializers, PostSerializers)
+from .serializers import (
+    CommentSerializers,
+    FollowSerializers,
+    GroupSerializers,
+    PostSerializers,
+)
 
 
 class AuthorOrReadOnlyMixin:

@@ -54,7 +54,7 @@ class Post(models.Model):
 
     def __str__(self):
         """Для показа текста поста"""
-        return self.text
+        return self.text[:10]
 
     class Meta:
         verbose_name = _("Post")
@@ -105,6 +105,10 @@ class Follow(models.Model):
     )
 
     class Meta:
-        unique_together = [["user", "following"]]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "following"], name="unique_subscriptions"
+            )
+        ]
         verbose_name = _("Follow")
         verbose_name_plural = _("Follows")
